@@ -9,22 +9,24 @@ import torch.nn.functional as F
 
 de_vocab_size = 20000     #input vocab size
 en_vocab_size = 10000     #output vocab size
-max_len=128             #input sequence length: maximum words in the sequence
+max_in_len = 128             #input sequence length: maximum words in the input sequence
+max_out_len = 256            #output sequence length: maximum words in the output sequence
 embed_dim=512
 enc_layers=6
 dec_layers=6
 num_heads=8
 batch_size = 1
 
-enc_tensor_shape = (batch_size, max_len, de_vocab_size)
-dec_tensor_shape = (batch_size, max_len*2, en_vocab_size)
+enc_tensor_shape = (batch_size, max_in_len, de_vocab_size)
+dec_tensor_shape = (batch_size, max_out_len, en_vocab_size)
 
 class TransformerModel(nn.Module):
     def __init__(
         self,
         en_vocab_size = en_vocab_size,
         de_vocab_size = de_vocab_size,
-        max_len = max_len,
+        max_in_len = max_in_len,
+        max_out_len = max_out_len,
         embed_dim = embed_dim,
         enc_layers = enc_layers,
         dec_layers = dec_layers ,
@@ -52,7 +54,8 @@ class TransformerModel(nn.Module):
 
         self.en_vocab_size = en_vocab_size
         self.de_vocab_size = de_vocab_size
-        self.max_len = max_len
+        self.max_in_len = max_in_len
+        self.max_out_len = max_out_len
         self.embed_dim = embed_dim
         self.enc_layers = enc_layers
         self.dec_layers = dec_layers
@@ -62,7 +65,7 @@ class TransformerModel(nn.Module):
         self.enc_input_dense = nn.Linear(self.de_vocab_size, self.embed_dim)
 
         # (Learned) positional encoding to be added to the embedded encoder input
-        self.enc_pos_enc = nn.Parameter(torch.zeros((1, self.max_len, self.embed_dim)))
+        self.enc_pos_enc = nn.Parameter(torch.zeros((1, self.max_in_len, self.embed_dim)))
 
         # List of hidden layers in the feed-forward network of different encoder blocks
         self.enc_increase_hidden = nn.ModuleList(
@@ -91,7 +94,7 @@ class TransformerModel(nn.Module):
         self.dec_input_dense = nn.Linear(self.en_vocab_size, self.embed_dim)
 
         # (Learned) positional encoding to be added to the embedded decoder input
-        self.dec_pos_enc = nn.Parameter(torch.zeros((1, self.max_len*2, self.embed_dim)))
+        self.dec_pos_enc = nn.Parameter(torch.zeros((1, self.max_out_len, self.embed_dim)))
 
         # List of hidden layers in the feed-forward network of different decoder blocks
         self.dec_increase_hidden = nn.ModuleList(
@@ -131,15 +134,15 @@ class TransformerModel(nn.Module):
         """Implement the forward pass of the Transformer model.
 
         Args:
-            x1: with shape (batch_size, self.max_len, self.de_vocab_size)
-            x2: with shape (batch_size, self.max_len + 1, self.en_vocab_size)
+            x1: with shape (batch_size, self.max_in_len, self.de_vocab_size)
+            x2: with shape (batch_size, self.max__out_len + 1, self.en_vocab_size)
 
         Returns:
             Tuple of:
                 decoding: final output of the model,
-                          with shape (batch_size, self.max_len + 1, self.en_vocab_size)
+                          with shape (batch_size, self.max_out_len + 1, self.en_vocab_size)
                 attention: attention_weights of the last multi-head attention block in decoder,
-                           with shape (batch_size, self.max_len + 1, self.max_len)
+                           with shape (batch_size, self.max_out_len + 1, self.max_out_len)
         """
 
         # Embed inputs to embed dimension
@@ -211,9 +214,9 @@ class TransformerModel(nn.Module):
         print("Total Number of skip connections: ", (2*enc_layers + 3*dec_layers))
         print("Total number of elements in the output tensor of the last encoder: (input sequence length * embed_dims)", torch.numel(encoding))
         print("Encoder-Decoder Attention Weights dimensions softmax((Q * K.t)/√dk)): (num_heads, batch_size, output sequence length, input sequence length)", attention.shape)
-        print("Encoder-Decoder Attention Weight matrix (for a single head) number of elements: (embed_dims * embed_dims/num_heads)", torch.numel(attention)/num_heads)
+        print("Encoder-Decoder Attention Weights matrix (for a single head) number of elements: (max_in_len * max_out_len)", torch.numel(attention)/num_heads)
         print("Number of output units of the final fully connected layer = number of features in a decoder output vector = output vocab size: ", decoding.shape[-1])
-        print("Total number of weights in a single multi-headed self attention module: (embed_dims * embed_dims)", embed_dim*embed_dim)
+        print("Total number of weights in a single multi-headed self attention module: (embed_dims * embed_dims*3)", embed_dim*embed_dim*3)
 
         return decoding, attention
 

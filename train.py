@@ -24,7 +24,7 @@ model_in_use = 'mlp_with_res'
 # model_in_use = 'transformer'
 
 
-torch.cuda.manual_seed_all(2)
+
 if model_in_use is 'mlp':
     model = MLP(input_shape=input_shape,
                         num_classes=2).to(device)

@@ -14,13 +14,13 @@ from transformer import *
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 # model_in_use = 'mlp'
-model_in_use = 'mlp_with_res'
+# model_in_use = 'mlp_with_res'
 # model_in_use = 'dnn'
 # model_in_use = 'cnn'
 # model_in_use = 'cnn1d'
 # model_in_use = 'rnn'
 # model_in_use = 'lstm'
-# model_in_use = 'transformer'
+model_in_use = 'transformer'
 
 
 if model_in_use is 'mlp':
