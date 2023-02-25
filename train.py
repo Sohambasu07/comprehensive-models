@@ -15,12 +15,12 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 # model_in_use = 'mlp'
-# model_in_use = 'mlp_with_res'
+model_in_use = 'mlp_with_res'
 # model_in_use = 'dnn'
 # model_in_use = 'cnn'
 # model_in_use = 'cnn1d'
 # model_in_use = 'rnn'
-model_in_use = 'lstm'
+# model_in_use = 'lstm'
 # model_in_use = 'transformer'
 
 
@@ -46,12 +46,10 @@ elif model_in_use is 'cnn1d':
                         num_classes=2).to(device)
 
 elif model_in_use is 'rnn':
-    model = RNNModel(input_shape=input_shape_rnn,
-                        num_classes=2).to(device)
+    model = RNNModel(input_shape=input_shape_rnn).to(device)
 
 elif model_in_use is 'lstm':
-    model = LSTMModel(input_shape=input_shape_lstm,
-                        num_classes=2).to(device)
+    model = LSTMModel(input_shape=input_shape_lstm).to(device)
 
 num_epochs = 1
 lr = 0.01
@@ -62,8 +60,14 @@ criterion = nn.MSELoss()
 
 #inputs and labels
 
-x = torch.Tensor(np.array([[[1, 2, 3, 4]]]))
-y = torch.Tensor(np.array([[[1, 0]]]))
+# x = torch.Tensor(np.array([[[1, 2, 3, 4]]]))              #Sample input data for CNN1D
+# y = torch.Tensor(np.array([[[1, 0]]]))                    #Sample output labels for  CNN1D
+
+
+x = torch.Tensor(np.array([[1, 2], [2, 3], [3, 4], [4, 5]]))                #Sample input data for MLP, MLP_with_res and DNN
+y = torch.Tensor(np.array([[0], [1], [1], [0]]))                            #Sample output labels for MLP, MLP_with_res and DNN
+
+
 print("Input Tensor: ", x, x.shape)
 print("Output Tensor: ", y, y.shape)
 
@@ -80,14 +84,17 @@ for epoch in range(num_epochs):
     SGD.zero_grad()
     loss.backward()
     SGD.step()
-    count = 1
-    wob = 1
+    count = 0
     for params in model.parameters():
-        print("\nLayer {} params".format(count),"\n")
-        if wob == 1: print("Weights: ")
+        if count%2 == 0:
+            print("\nLayer %i params"%(count/2),"\n")
+        if count%2 == 0: print("Weights: ")
         else: print("Biases: ")
+        print(params.data)
+        if count%2 == 0: print("dL/dw: ")
+        else: print("dL/db: ")
         print(params.grad)
-        wob += 1
+        count += 1
 
 
     

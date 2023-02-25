@@ -8,7 +8,7 @@ input_shape = (4, 2)
 class MLP_with_res(nn.Module):
     def __init__(self, input_shape=input_shape, num_classes=2):
         super(MLP_with_res, self).__init__()
-        self.fc1 = nn.Linear(input_shape[1], 1)
+        self.fc1 = nn.Linear(input_shape[-1], 1)
         self.act1 = nn.ReLU()
         self.fc2 = nn.Linear(1, 1)
         self.act2 = nn.ReLU()
@@ -26,8 +26,6 @@ class MLP_with_res(nn.Module):
         # print(self.fc1.weight.shape)
         # print(self.fc2.weight.shape)
         # print(self.fc3.weight.shape)
-
-        print(self.fc1.weight.grad)
 
         
     def forward(self, x):
