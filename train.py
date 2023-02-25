@@ -74,7 +74,9 @@ print("Output Tensor: ", y, y.shape)
 
 
 for epoch in range(num_epochs):
-    # print("Epoch: ", epoch)
+    print("=======================================================")
+    print("Epoch: ", epoch)
+    print("=======================================================")
     outputs = model(x.cuda())
     print("Predictions: ", outputs, outputs.shape)
     loss = criterion(outputs, y.cuda())
