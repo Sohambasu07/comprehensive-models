@@ -216,7 +216,7 @@ class TransformerModel(nn.Module):
         print("Encoder-Decoder Attention Weights dimensions softmax((Q * K.t)/√dk)): (num_heads, batch_size, output sequence length, input sequence length)", attention.shape)
         print("Encoder-Decoder Attention Weights matrix (for a single head) number of elements: (max_in_len * max_out_len)", torch.numel(attention)/num_heads)
         print("Number of output units of the final fully connected layer = number of features in a decoder output vector = output vocab size: ", decoding.shape[-1])
-        print("Total number of weights in a single multi-headed self attention module: (embed_dims * embed_dims*3)", embed_dim*embed_dim*3)
+        print("Total number of weights in a single multi-headed self attention module: For all Q, K and V combined: (embed_dims * embed_dims*3) and for W_O: (embed_dims*embed_dims)", embed_dim*embed_dim*4)
 
         return decoding, attention
 
